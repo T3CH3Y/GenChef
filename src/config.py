@@ -4,5 +4,5 @@ import os
 load_dotenv()
 
 config = {
-    "OPENAI_KEY" : os.environ("OPENAI_KEY")
-}
+    "OPENAI_KEY" : os.environ["OPENAI_KEY"
+]}
