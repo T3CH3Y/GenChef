@@ -1,6 +1,6 @@
 import weaviate
 import openai
-import config
+from config import config
 
 from llama_index import SimpleDirectoryReader
 from llama_index.node_parser import SimpleNodeParser
@@ -11,7 +11,7 @@ client = weaviate.Client(embedded_options=weaviate.embedded.EmbeddedOptions(), a
 openai.api_key = config["OPENAI_KEY"]
 
 # load the blogs in using the reader
-blogs = SimpleDirectoryReader('./testdata/').load_data()
+blogs = SimpleDirectoryReader('src/testdata').load_data()
 
 # chunk up the blog posts into nodes
 parser = SimpleNodeParser.from_defaults(chunk_size=1024, chunk_overlap=20)
