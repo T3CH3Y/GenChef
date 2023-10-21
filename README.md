@@ -1,2 +1,0 @@
-# GenChef
-yes chef
