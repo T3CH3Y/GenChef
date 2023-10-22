@@ -5,5 +5,6 @@ load_dotenv()
 
 config = {
     "OPENAI_KEY" : os.environ["OPENAI_KEY"],
-    "WEAVIATE_KEY" : os.environ["WEAVIATE_KEY"]
+    "WEAVIATE_KEY" : os.environ["WEAVIATE_KEY"],
+    "OPENAI_MODEL" : "gpt-3.5-turbo-instruct"
 }
