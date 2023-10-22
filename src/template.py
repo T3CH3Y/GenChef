@@ -9,7 +9,7 @@ from llama_index import VectorStoreIndex, StorageContext
 
 client = weaviate.Client(
     url = "https://my-sandbox-csjz1k6w.weaviate.network",  # Replace with your endpoint
-    auth_client_secret=weaviate.AuthApiKey(api_key=config["WEAV_KEY"]),  # Replace w/ your Weaviate instance API key
+    auth_client_secret=weaviate.AuthApiKey(api_key=config["WEAVIATE_KEY"]),  # Replace w/ your Weaviate instance API key
     additional_headers = {
         "X-OpenAI-Api-Key": config["OPENAI_KEY"]
     }
