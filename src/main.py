@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 from config import config
+from template import callchef
 import os
 import sys
 
@@ -16,8 +17,7 @@ if __name__ == "__main__":
     
     text_prompt_head = "You are a helpful chef that will provide step-by-step recipes based primary around the ingredients and styles specified here: "
     text_prompt = text_prompt_head + query
-    gpt_gen = openai.Completion.create(model=openai_text, prompt = text_prompt, max_tokens = 1000)
-    gpt_gen_clean = gpt_gen['choices'][0]['text']
+    gpt_gen = callchef(text_prompt)
     
     image_prompt_head = "Generate a commercial-grade image of a dish composed of the following ingredients and styles: "
     com_prompt = image_prompt_head + query
@@ -25,4 +25,4 @@ if __name__ == "__main__":
     dish_image_clean = dish_image['data'][0]['url']
 
     st.image(dish_image_clean)
-    st.write(gpt_gen_clean)
+    st.write(gpt_gen)

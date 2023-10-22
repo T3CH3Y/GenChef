@@ -1,14 +1,14 @@
 from config import config
 
 import os
+import json
 import openai
 import weaviate
 
-from langchain import HuggingFaceTextGenInference
-from langchain.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain.chat_models import ChatOpenAI
 
 from llama_index import (
-    LangchainEmbedding,
+    OpenAIEmbedding,
     PromptHelper,
     QuestionAnswerPrompt,
     RefinePrompt,
@@ -20,19 +20,19 @@ from llama_index.llm_predictor import LLMPredictor
 from llama_index.vector_stores import WeaviateVectorStore
 from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 
-client = weaviate.Client(
-    url = config["WEAVIATE_URL"],  # Replace with your endpoint
-    auth_client_secret=weaviate.AuthApiKey(api_key=config["WEAVIATE_KEY"]),  # Replace w/ your Weaviate instance API key
+def callchef(text_query):
+    client = weaviate.Client(
+    url = "https://gen-chef-grbe0axw.weaviate.network/",  # Replace with your endpoint
+    auth_client_secret=weaviate.AuthApiKey(api_key="rF9pAPONKDg6HyxoP7f0Q4iC3A5MRdIiLaZW"),  # Replace w/ your Weaviate instance API key
     additional_headers = {
-        "X-OpenAI-Api-Key": config["OPENAI_KEY"]
+        "X-OpenAI-Api-Key": "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"  # Replace with your inference API key
     }
-)
+    )
 
-openai.api_key = config["OPENAI_KEY"]
-
-if __name__ == "__main__":
-    weaviate_api_key = os.getenv("WEAVIATE_KEY")
-    weaviate_url = os.getenv("WEAVIATE_URL")
+    openai.api_key = config["OPENAI_KEY"]
+    
+    weaviate_api_key = "rF9pAPONKDg6HyxoP7f0Q4iC3A5MRdIiLaZW"
+    weaviate_url = "https://gen-chef-grbe0axw.weaviate.network/"
     tgi_endpoint_url = os.getenv("OPENAI_MODEL")
 
     if not weaviate_api_key or not weaviate_url or not tgi_endpoint_url:
@@ -47,14 +47,20 @@ if __name__ == "__main__":
         auth_client_secret=auth_config,
     )
 
-    embed_model = LangchainEmbedding(HuggingFaceEmbeddings())
+    embed_model = OpenAIEmbedding(embed_batch_size=10)
 
     llm_predictor = LLMPredictor(
-        llm=HuggingFaceTextGenInference(
-            inference_server_url=tgi_endpoint_url,
-            max_new_tokens=512,
-            streaming=True,
-        ),
+        llm=ChatOpenAI(temperature=0, 
+                       model=config["OPENAI_MODEL"], 
+                       openai_api_key=config["OPENAI_KEY"], 
+                       streaming=True,
+                       max_tokens = 1000
+                       )
+        # llm=HuggingFaceTextGenInference(
+        #     inference_server_url=tgi_endpoint_url,
+        #     max_new_tokens=512,
+        #     streaming=True,
+        # ),
     )
 
     llama_debug = LlamaDebugHandler(print_trace_on_end=True)
@@ -66,53 +72,63 @@ if __name__ == "__main__":
         prompt_helper=PromptHelper(context_window=1024),
         callback_manager=callback_manager,
     )
-
+    
     vector_store = WeaviateVectorStore(
-        weaviate_client=client, index_name="GenChef"
+        weaviate_client=client, index_name="Recipe"
     )
-
+    
+    print("flag")
+    print(vector_store)
+    print("flag")
+    
     index = VectorStoreIndex.from_vector_store(
         vector_store, service_context=service_context
     )
 
     text_qa_template = QuestionAnswerPrompt(
         """<s>[INST] <<SYS>>
-We have provided context information below. 
+    We have provided context information below. 
 
-{context_str}
+    {context_str}
 
-Given this information, please answer the question.
-<</SYS>>
+    Given this information, please answer the question.
+    <</SYS>>
 
-{query_str} [/INST]"""
-    )
+    {query_str} [/INST]"""
+        )
 
     refine_template = RefinePrompt(
-        """<s>[INST] <<SYS>>
-The original query is as follows: 
+            """<s>[INST] <<SYS>>
+    The original query is as follows: 
 
-{query_str}
+    {query_str}
 
-We have provided an existing answer:
+    We have provided an existing answer:
 
-{existing_answer}
+    {existing_answer}
 
-We have the opportunity to refine the existing answer (only if needed) with some more context below.
+    We have the opportunity to refine the existing answer (only if needed) with some more context below.
 
-{context_msg}
-<</SYS>>
+    {context_msg}
+    <</SYS>>
 
-Given the new context, refine the original answer to better answer the query. If the context isn't useful, return the original answer. [/INST]"""
-    )
+    Given the new context, refine the original answer to better answer the query. If the context isn't useful, return the original answer. [/INST]"""
+        )
 
     query_engine = index.as_query_engine(
         text_qa_template=text_qa_template,
         refine_template=refine_template,
+        service_context=service_context,
         streaming=True,
+        similiarity_top_k = 1
     )
+    print(query_engine)
+    
+    response = query_engine.query(text_query)
+    return str(response)
 
-    response = query_engine.query(
-        "Give me a recipe for a chicken sandwich."
-    )
-    response.print_response_stream()
-    print(f"\n\nSources:\n\n{response.get_formatted_sources()}")
+    #response = client.query.get("Recipe", ["name", "keywords", "ingredients"]).with_near_text({"concepts": ["arab cuisine"]}).with_limit(10).do()
+    #print(dir(response))
+    # print(response)
+    # print(f"\n\nSources:\n\n{response.get_formatted_sources()}")
+    # print(json.dumps(response, indent=4))
