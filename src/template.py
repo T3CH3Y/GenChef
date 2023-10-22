@@ -22,18 +22,18 @@ from llama_index.callbacks import CallbackManager, LlamaDebugHandler
 
 def callchef(text_query):
     client = weaviate.Client(
-    url = "https://gen-chef-grbe0axw.weaviate.network/",  # Replace with your endpoint
-    auth_client_secret=weaviate.AuthApiKey(api_key="rF9pAPONKDg6HyxoP7f0Q4iC3A5MRdIiLaZW"),  # Replace w/ your Weaviate instance API key
+    url = config["WEAVIATE_URL"],  # Replace with your endpoint
+    auth_client_secret=weaviate.AuthApiKey(api_key=config["WEAVIATE_KEY"]),  # Replace w/ your Weaviate instance API key
     additional_headers = {
-        "X-OpenAI-Api-Key": "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"  # Replace with your inference API key
+        "X-OpenAI-Api-Key": config["OPENAI_KEY"]  # Replace with your inference API key
     }
     )
 
     openai.api_key = config["OPENAI_KEY"]
     
-    weaviate_api_key = "rF9pAPONKDg6HyxoP7f0Q4iC3A5MRdIiLaZW"
-    weaviate_url = "https://gen-chef-grbe0axw.weaviate.network/"
-    tgi_endpoint_url = os.getenv("OPENAI_MODEL")
+    weaviate_api_key = config["WEAVIATE_KEY"]
+    weaviate_url = config["WEAVIATE_URL"]
+    tgi_endpoint_url = config["OPENAI_MODEL"]
 
     if not weaviate_api_key or not weaviate_url or not tgi_endpoint_url:
         exit(
