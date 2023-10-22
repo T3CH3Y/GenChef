@@ -4,16 +4,22 @@ A personal AI chef assistant to make meal planning much simpler. Utilizes over 4
 # How to run:
 
 Set your environmental keys in a .env file in the /src directory as below:
+
 export OPENAI_KEY = "YOUR-KEY-HERE"
+
 export WEAVIATE_KEY = "YOUR-KEY-HERE"
 
+
 How to get an OpenAI Key: https://www.howtogeek.com/885918/how-to-get-an-openai-api-key/
+
 How to get a Weaviate Key: https://weaviate.io/developers/weaviate/configuration/authentication
 
 Install dependencies:
+
 pip install -r requirements.txt
 
 And run this command from the source directory:
+
 streamlit run main.py
 
 And now just run your queries through the UI! It will return images and text.
