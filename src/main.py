@@ -19,8 +19,8 @@ if __name__ == "__main__":
     text_prompt = text_prompt_head + query
     gpt_gen = callchef(text_prompt)
     
-    image_prompt_head = "Generate a commercial-grade image of a dish composed of the following ingredients and styles: "
-    com_prompt = image_prompt_head + query
+    image_prompt_head = "Generate a commercial-grade image of a dish composed of the following recipe: "
+    com_prompt = image_prompt_head + gpt_gen
     dish_image = openai.Image.create( prompt = com_prompt, n = 1, size = "256x256")
     dish_image_clean = dish_image['data'][0]['url']
 
